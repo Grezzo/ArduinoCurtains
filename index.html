@@ -1,0 +1,61 @@
+<html>
+    <head>
+        <title>Curtains</title>
+        <meta name="apple-mobile-web-app-capable" content="yes">
+            <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+                <script>
+                    var myRequest = new XMLHttpRequest();
+                    function opencurtains() {
+                        myRequest.open("GET", "/open");
+                        myRequest.send();
+                    }
+                function closecurtains() {
+                    myRequest.open("GET", "/close");
+                    myRequest.send();
+                }
+                function setAlarms() {
+                    var timeNow = new Date();
+                    var hours = padToTwo(timeNow.getHours());
+                    var minutes = padToTwo(timeNow.getMinutes());
+                    url = encodeURI("/alarm?time=" + hours + ":" + minutes + "&open=" + openTime.value + "&close=" + closeTime.value);
+                    myRequest.open("GET", url);
+                    myRequest.send();
+                }
+                function checkAlarmTimes() {
+                    if (openTime.value == "" || closeTime.value == "") {
+                        button.disabled = true;
+                    } else {
+                        button.disabled = false;
+                    }
+                }
+                function padToTwo(number) {
+                    if (number < 10) {
+                        number = "0" + number;
+                    }
+                    return number;
+                }
+                function touched(touchEvent) {
+                    touchX = touchEvent.touches[0].screenX;
+                    panelLeft = document.getElementById("touchPanel").offsetLeft;
+                    panelWidth = document.getElementById("touchPanel").offsetWidth
+                    percentage = Math.round(((touchX - panelLeft) / panelWidth) * 100);
+                    url = encodeURI("/moveto?position=" + percentage);
+                    myRequest.open("GET", url);
+                    myRequest.send();
+                }
+                </script>
+    </head>
+    <body style="margin: 0; color: white; font-family: sans-serif;">
+        <div style="height: 50%; width: 10%; background: #666; float: left;" onTouchStart="opencurtains()"></div>
+        <div id="touchPanel" style="height: 50%; width: 80%; background: #444; float: left;" onTouchStart="touched(event)"></div>
+        <div style="height: 50%; width: 10%; background: #222; float: right;" onTouchStart="closecurtains()"></div>
+        <div style="height: 50%; width: 100%; background: black; float: left; text-align: center; padding: 10px;">
+            Open Time: <input id="openTime" type="time" value="07:30" onChange="checkAlarmTimes()">
+                <br>
+                Close Time: <input id="closeTime" type="time" value="16:30" onChange="checkAlarmTimes()">
+                    <br>
+                    <input id="button" type="button" value="Set Alarms" onClick="setAlarms()">
+        </div>
+    </body>
+</html>
